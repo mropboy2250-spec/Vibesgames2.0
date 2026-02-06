@@ -1,1 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameVibe - Game Store</title>
+<link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
 
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+:root {
+  --primary: #00e5ff;
+  --primary-dark: #00b8d4;
+  --secondary: #ff4081;
+  --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --card-hover: rgba(255, 255, 255, 0.15);
+  --text-light: #ffffff;
+  --text-dim: #b0bec5;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --radius: 16px;
+  --radius-sm: 12px;
+}
+
+body {
+  background: var(--bg-gradient);
+  color: var(--text-light);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* AUTH SCREENS */
+.auth {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--bg-gradient);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+h2 {
+  text-align: center;
+  color: var(--primary);
+  margin-bottom: 20px;
+  font-size: 28px;
+}
+
+input, button, select, textarea {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  margin-top: 12px;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+input, textarea, select {
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2);
+}
+
+button {
+  background: var(--primary);
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+button.secondary:hover {
+  background: rgba(0, 229, 255, 0.1);
+}
+
+.switch {
+  text-align: center;
+  margin-top: 15px;
+  color: var(--text-dim);
+}
+
+.switch span {
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+/* APP LAYOUT */
+.app {
+  padding-bottom: 80px;
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.header {
+  padding: 20px 15px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 32, 39, 0.9);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  color: var(--primary);
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 20px;
+}
+
+.user-role {
+  background: var(--primary);
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* SEARCH */
+.search-container {
+  padding: 15px;
+  position: sticky;
+  top: 60px;
+  background: rgba(15, 32, 39, 0.9);
+  z-index: 99;
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding-left: 45px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23b0bec5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 15px center;
+  background-size: 20px;
+}
+
+.filter-btn {
+  width: auto;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* APP CATEGORIES */
+.categories {
+  padding: 10px 15px;
+  overflow-x: auto;
+  white-space: nowrap;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.category-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  border-radius: 20px;
+  font-size: 14px;
+  width: auto;
+  white-space: nowrap;
+}
+
+.category-btn.active {
+  background: var(--primary);
+  color: #000;
+  font-weight: bold;
+}
+
+/* APP GRID */
+.section-title {
+  padding: 15px 15px 5px;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.see-all {
+  color: var(--primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 15px;
+  padding: 15px;
+}
+
+.app-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 15px;
+  text-align: center;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.app-card:hover {
+  background: var(--card-hover);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+}
+
+.app-icon {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+
+.app-name {
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+.app-category {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.app-rating {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #ffc107;
+}
+
+.download-btn {
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--primary);
+  padding: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.download-btn:hover {
+  background: rgba(0, 229, 255, 0.3);
+}
+
+/* BANNER */
+.banner {
+  background: linear-gradient(135deg, #ff4081, #ff9100);
+  margin: 15px;
+  padding: 20px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.banner-icon {
+  font-size: 40px;
+}
+
+.banner-text h3 {
+  margin-bottom: 5px;
+}
+
+.banner-text p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* BOTTOM NAV */
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background: rgba(15, 32, 39, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 12px 0;
+  z-index: 1000;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.nav-btn.active {
+  color: var(--primary);
+}
+
+.nav-btn:hover {
+  color: var(--primary);
+  background: rgba(0, 229, 255, 0.1);
+}
+
+.nav-icon {
+  font-size: 20px;
+}
+
+/* ADMIN PANEL */
+.admin-container {
+  padding: 15px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 20px;
+  width: auto;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: #000;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 15px;
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.admin-table {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.role-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.role-badge.admin {
+  background: rgba(255, 64, 129, 0.2);
+  color: #ff4081;
+}
+
+.role-badge.user {
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--primary);
+}
+
+.delete-btn {
+  background: rgba(255, 64, 129, 0.2);
+  color: #ff4081;
+  padding: 6px 12px;
+  font-size: 13px;
+  width: auto;
+}
+
+/* ADD GAME FORM */
+.add-game-form {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-dim);
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* DETAIL MODAL */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--bg-gradient);
+  width: 100%;
+  max-width: 500px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.modal-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.modal-title {
+  flex: 1;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-description {
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: var(--text-dim);
+}
+
+.modal-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.modal-stat {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions button {
+  flex: 1;
+}
+
+.close-modal {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+  
+  .header h1 {
+    font-size: 20px;
+  }
+  
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .apps-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .box {
+    padding: 20px;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="auth" id="loginBox">
+  <div class="box">
+    <h2>🎮 GameVibe Store</h2>
+    <input id="loginUser" placeholder="Username">
+    <input id="loginPass" type="password" placeholder="Password">
+    <button onclick="login()">🔑 Login</button>
+    <div class="switch">New to GameVibe? <span onclick="showSignup()">Create account</span></div>
+    <div class="switch" style="margin-top: 20px; color: #ff4081; font-size: 14px;">
+      <strong>Admin Login:</strong><br>
+      Username: <strong>admin</strong><br>
+      Password: <strong>admin123</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP SCREEN -->
+<div class="auth hidden" id="signupBox">
+  <div class="box">
+    <h2>Create Account</h2>
+    <input id="signupUser" placeholder="Choose Username">
+    <input id="signupPass" type="password" placeholder="Create Password">
+    <button onclick="signup()">✅ Sign Up</button>
+    <div class="switch">Already have an account? <span onclick="showLogin()">Login here</span></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app hidden" id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <h1><span>🎮</span> GameVibe Store</h1>
+    <div class="user-info">
+      <span id="usernameDisplay">User</span>
+      <div class="user-role" id="userRole">user</div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-container">
+    <div class="search-bar">
+      <input id="searchInput" placeholder="Search games...">
+      <button class="filter-btn" onclick="toggleFilter()">🔍</button>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="categories">
+    <button class="category-btn active" onclick="filterCategory('all')">All Games</button>
+    <button class="category-btn" onclick="filterCategory('action')">🎮 Action</button>
+    <button class="category-btn" onclick="filterCategory('adventure')">🗺️ Adventure</button>
+    <button class="category-btn" onclick="filterCategory('sports')">⚽ Sports</button>
+    <button class="category-btn" onclick="filterCategory('racing')">🏎️ Racing</button>
+    <button class="category-btn" onclick="filterCategory('strategy')">♟️ Strategy</button>
+  </div>
+
+  <!-- ADMIN BANNER -->
+  <div class="banner hidden" id="adminBanner">
+    <div class="banner-icon">👑</div>
+    <div class="banner-text">
+      <h3>Welcome Admin!</h3>
+      <p>You can manage users and add new games</p>
+    </div>
+  </div>
+
+  <!-- ADD GAME BUTTON (FOR ADMIN) -->
+  <div class="section-title hidden" id="addGameSection">
+    <h3>➕ Add New Game</h3>
+    <button class="secondary" onclick="showAddGameForm()" style="width: auto; padding: 8px 16px;">Add Game</button>
+  </div>
+
+  <!-- APPS SECTIONS -->
+  <div id="homeContent">
+    <div class="section-title">
+      <h3>🔥 Popular Games</h3>
+      <span class="see-all" onclick="showAllGames()">See all</span>
+    </div>
+    <div class="apps-grid" id="popularGames"></div>
+
+    <div class="section-title">
+      <h3>⭐ New Releases</h3>
+      <span class="see-all" onclick="showAllGames()">See all</span>
+    </div>
+    <div class="apps-grid" id="newGames"></div>
+
+    <div class="section-title">
+      <h3>🎯 Top Rated</h3>
+      <span class="see-all" onclick="showAllGames()">See all</span>
+    </div>
+    <div class="apps-grid" id="topRatedGames"></div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-container hidden" id="adminPanel">
+    <div class="admin-header">
+      <h2>👑 Admin Dashboard</h2>
+      <button onclick="refreshUsers()">🔄 Refresh</button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="showTab('users')">👥 Users</button>
+      <button class="tab-btn" onclick="showTab('games')">🎮 Games</button>
+      <button class="tab-btn" onclick="showTab('addgame')">➕ Add Game</button>
+    </div>
+
+    <!-- USERS TAB -->
+    <div id="usersTab">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="totalUsers">0</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalGames">0</div>
+          <div class="stat-label">Total Games</div>
+        </div>
+      </div>
+
+      <h3>User Management</h3>
+      <div class="admin-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- GAMES TAB -->
+    <div id="gamesTab" class="hidden">
+      <h3>Game Management</h3>
+      <div class="admin-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Game Name</th>
+              <th>Category</th>
+              <th>Rating</th>
+              <th>Downloads</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="gamesTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD GAME TAB -->
+    <div id="addGameTab" class="hidden">
+      <div class="add-game-form">
+        <h3>Add New Game</h3>
+        <div class="form-group">
+          <label>Game Name</label>
+          <input id="gameName" placeholder="Enter game name">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="gameCategory">
+            <option value="action">Action</option>
+            <option value="adventure">Adventure</option>
+            <option value="sports">Sports</option>
+            <option value="racing">Racing</option>
+            <option value="strategy">Strategy</option>
+            <option value="puzzle">Puzzle</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input id="gameImage" placeholder="Enter image URL">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="gameDescription" placeholder="Enter game description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Download Link</label>
+          <input id="gameLink" placeholder="Enter download link">
+        </div>
+        <div class="form-actions">
+          <button onclick="addGame()">✅ Add Game</button>
+          <button class="secondary" onclick="resetGameForm()">🔄 Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME DETAIL MODAL -->
+<div class="modal hidden" id="gameModal">
+  <div class="close-modal" onclick="closeModal()">✕</div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <img class="modal-icon" id="modalIcon" src="" alt="Game Icon">
+      <div class="modal-title">
+        <h3 id="modalName">Game Name</h3>
+        <p id="modalCategory">Category</p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-description" id="modalDescription">Game description will appear here.</p>
+      <div class="modal-stats">
+        <div class="modal-stat">
+          <div class="stat-value" id="modalRating">4.5</div>
+          <div class="stat-label">Rating</div>
+        </div>
+        <div class="modal-stat">
+          <div class="stat-value" id="modalDownloads">10K+</div>
+          <div class="stat-label">Downloads</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button onclick="downloadGame()">⬇️ Download Now</button>
+        <button class="secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<div class="nav hidden" id="nav">
+  <button class="nav-btn active" onclick="showHome()">
+    <div class="nav-icon">🏠</div>
+    <span>Home</span>
+  </button>
+  <button class="nav-btn" onclick="showAllGames()">
+    <div class="nav-icon">🎮</div>
+    <span>Games</span>
+  </button>
+  <button class="nav-btn" onclick="showCategories()">
+    <div class="nav-icon">📂</div>
+    <span>Categories</span>
+  </button>
+  <button class="nav-btn" onclick="showProfile()">
+    <div class="nav-icon">👤</div>
+    <span>Profile</span>
+  </button>
+</div>
+
+<script>
+// Constants
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "admin123";
+let currentRole = "user";
+let currentUser = "";
+let gamesData = [];
+let currentCategory = "all";
+
+// Initialize games data
+function initGamesData() {
+  // Check if games exist in localStorage
+  const savedGames = JSON.parse(localStorage.getItem("games")) || [];
+  
+  if (savedGames.length > 0) {
+    gamesData = savedGames;
+  } else {
+    // Default games
+    gamesData = [
+      {
+        id: 1,
+        name: "GTA San Andreas",
+        category: "action",
+        icon: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400",
+        rating: 4.8,
+        downloads: "50M+",
+        description: "The classic open-world action game. Explore San Andreas, complete missions, and build your criminal empire.",
+        link: "https://example.com/gta-sa.apk"
+      },
+      {
+        id: 2,
+        name: "PPSSPP Gold",
+        category: "action",
+        icon: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400",
+        rating: 4.7,
+        downloads: "100M+",
+        description: "The best PSP emulator for Android. Play your favorite PSP games on your device.",
+        link: "https://example.com/ppsspp.apk"
+      },
+      {
+        id: 3,
+        name: "FIFA 2024",
+        category: "sports",
+        icon: "https://images.unsplash.com/photo-1534158914592-062992fbe900?w=400",
+        rating: 4.6,
+        downloads: "80M+",
+        description: "Experience the most realistic football gameplay on mobile with updated teams and stadiums.",
+        link: "https://example.com/fifa24.apk"
+      },
+      {
+        id: 4,
+        name: "Asphalt 9",
+        category: "racing",
+        icon: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400",
+        rating: 4.5,
+        downloads: "150M+",
+        description: "The ultimate racing experience with hyper-realistic graphics and over 150 cars.",
+        link: "https://example.com/asphalt9.apk"
+      },
+      {
+        id: 5,
+        name: "Minecraft",
+        category: "adventure",
+        icon: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400",
+        rating: 4.9,
+        downloads: "500M+",
+        description: "Build, explore, and survive in this block-based adventure game.",
+        link: "https://example.com/minecraft.apk"
+      },
+      {
+        id: 6,
+        name: "Clash of Clans",
+        category: "strategy",
+        icon: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400",
+        rating: 4.7,
+        downloads: "1B+",
+        description: "Build your village, raise a clan, and compete in epic Clan Wars.",
+        link: "https://example.com/coc.apk"
+      },
+      {
+        id: 7,
+        name: "PUBG Mobile",
+        category: "action",
+        icon: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400",
+        rating: 4.8,
+        downloads: "1B+",
+        description: "Battle royale game where 100 players fight to be the last one standing.",
+        link: "https://example.com/pubg.apk"
+      },
+      {
+        id: 8,
+        name: "Temple Run 2",
+        category: "adventure",
+        icon: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400",
+        rating: 4.4,
+        downloads: "500M+",
+        description: "Run, jump, and slide through ancient temples in this endless runner game.",
+        link: "https://example.com/templerun2.apk"
+      }
+    ];
+    saveGames();
+  }
+}
+
+// Save games to localStorage
+function saveGames() {
+  localStorage.setItem("games", JSON.stringify(gamesData));
+}
+
+// Auth Functions
+function showSignup() {
+  loginBox.classList.add("hidden");
+  signupBox.classList.remove("hidden");
+}
+
+function showLogin() {
+  signupBox.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+}
+
+function signup() {
+  const username = document.getElementById("signupUser").value;
+  const password = document.getElementById("signupPass").value;
+
+  if (!username || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+  
+  if (users.find(u => u.user === username)) {
+    alert("Username already exists");
+    return;
+  }
+
+  users.push({
+    user: username,
+    pass: password,
+    role: "user",
+    joined: new Date().toLocaleDateString()
+  });
+
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("Account created successfully!");
+  
+  // Auto login after signup
+  document.getElementById("loginUser").value = username;
+  document.getElementById("loginPass").value = password;
+  showLogin();
+}
+
+function login() {
+  const username = document.getElementById("loginUser").value;
+  const password = document.getElementById("loginPass").value;
+
+  // Admin login
+  if (username === ADMIN_USER && password === ADMIN_PASS) {
+    currentUser = "Admin";
+    currentRole = "admin";
+    openApp();
+    return;
+  }
+
+  // Regular user login
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+  let user = users.find(u => u.user === username && u.pass === password);
+
+  if (user) {
+    currentUser = user.user;
+    currentRole = user.role;
+    openApp();
+  } else {
+    alert("Invalid username or password");
+  }
+}
+
+function openApp() {
+  // Hide auth screens
+  loginBox.classList.add("hidden");
+  signupBox.classList.add("hidden");
+  
+  // Show app
+  app.classList.remove("hidden");
+  nav.classList.remove("hidden");
+  
+  // Update UI based on role
+  document.getElementById("usernameDisplay").textContent = currentUser;
+  document.getElementById("userRole").textContent = currentRole;
+  
+  // Show/hide admin features
+  if (currentRole === "admin") {
+    document.getElementById("adminBanner").classList.remove("hidden");
+    document.getElementById("addGameSection").classList.remove("hidden");
+  } else {
+    document.getElementById("adminBanner").classList.add("hidden");
+    document.getElementById("addGameSection").classList.add("hidden");
+  }
+  
+  // Initialize games data and render
+  initGamesData();
+  renderGames();
+}
+
+// Game Display Functions
+function renderGames() {
+  const popularGamesEl = document.getElementById("popularGames");
+  const newGamesEl = document.getElementById("newGames");
+  const topRatedGamesEl = document.getElementById("topRatedGames");
+  
+  // Filter games by current category
+  let filteredGames = gamesData;
+  if (currentCategory !== "all") {
+    filteredGames = gamesData.filter(game => game.category === currentCategory);
+  }
+  
+  // Sort for different sections
+  const popular = [...filteredGames].sort((a, b) => b.downloads.localeCompare(a.downloads)).slice(0, 4);
+  const newReleases = [...filteredGames].sort((a, b) => b.id - a.id).slice(0, 4);
+  const topRated = [...filteredGames].sort((a, b) => b.rating - a.rating).slice(0, 4);
+  
+  // Render popular games
+  popularGamesEl.innerHTML = popular.map(game => `
+    <div class="app-card" onclick="openGameDetail(${game.id})">
+      <img class="app-icon" src="${game.icon}" alt="${game.name}">
+      <div class="app-name">${game.name}</div>
+      <div class="app-category">${game.category}</div>
+      <div class="app-rating">⭐ ${game.rating}</div>
+      <button class="download-btn" onclick="event.stopPropagation(); downloadGameDirect('${game.link}', '${game.name}')">Download</button>
+    </div>
+  `).join('');
+  
+  // Render new games
+  newGamesEl.innerHTML = newReleases.map(game => `
+    <div class="app-card" onclick="openGameDetail(${game.id})">
+      <img class="app-icon" src="${game.icon}" alt="${game.name}">
+      <div class="app-name">${game.name}</div>
+      <div class="app-category">${game.category}</div>
+      <div class="app-rating">⭐ ${game.rating}</div>
+      <button class="download-btn" onclick="event.stopPropagation(); downloadGameDirect('${game.link}', '${game.name}')">Download</button>
+    </div>
+  `).join('');
+  
+  // Render top rated games
+  topRatedGamesEl.innerHTML = topRated.map(game => `
+    <div class="app-card" onclick="openGameDetail(${game.id})">
+      <img class="app-icon" src="${game.icon}" alt="${game.name}">
+      <div class="app-name">${game.name}</div>
+      <div class="app-category">${game.category}</div>
+      <div class="app-rating">⭐ ${game.rating}</div>
+      <button class="download-btn" onclick="event.stopPropagation(); downloadGameDirect('${game.link}', '${game.name}')">Download</button>
+    </div>
+  `).join('');
+  
+  // Update total games count
+  document.getElementById("totalGames").textContent = gamesData.length;
+}
+
+function filterCategory(category) {
+  currentCategory = category;
+  
+  // Update active category button
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  renderGames();
+}
+
+function openGameDetail(gameId) {
+  const game = gamesData.find(g => g.id === gameId);
+  if (!game) return;
+  
+  document.getElementById("modalIcon").src = game.icon;
+  document.getElementById("modalName").textContent = game.name;
+  document.getElementById("modalCategory").textContent = game.category.charAt(0).toUpperCase() + game.category.slice(1);
+  document.getElementById("modalDescription").textContent = game.description;
+  document.getElementById("modalRating").textContent = game.rating;
+  document.getElementById("modalDownloads").textContent = game.downloads;
+  
+  document.getElementById("gameModal").classList.remove("hidden");
+}
+
+function closeModal() {
+  document.getElementById("gameModal").classList.add("hidden");
+}
+
+function downloadGameDirect(link, name) {
+  if (confirm(`Download ${name}?`)) {
+    window.open(link, '_blank');
+    alert(`Downloading ${name}...`);
+  }
+}
+
+function downloadGame() {
+  const gameName = document.getElementById("modalName").textContent;
+  alert(`Starting download of ${gameName}...`);
+  closeModal();
+}
+
+// Navigation Functions
+function showHome() {
+  document.getElementById("homeContent").classList.remove("hidden");
+  document.getElementById("adminPanel").classList.add("hidden");
+  updateNavButtons('home');
+}
+
+function showAllGames() {
+  filterCategory('all');
+  updateNavButtons('games');
+}
+
+function showCategories() {
+  // Just scroll to categories
+  document.querySelector('.categories').scrollIntoView({ behavior: 'smooth' });
+  updateNavButtons('categories');
+}
+
+function showProfile() {
+  alert(`User Profile:\n\nUsername: ${currentUser}\nRole: ${currentRole}\n\nMore features coming soon!`);
+  updateNavButtons('profile');
+}
+
+function updateNavButtons(active) {
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Find and activate the clicked button
+  const buttons = document.querySelectorAll('.nav-btn');
+  buttons.forEach((btn, index) => {
+    if (btn.querySelector('span').textContent.toLowerCase() === active.toLowerCase()) {
+      btn.classList.add('active');
+    }
+  });
+}
+
+// Admin Functions
+function showAdminPage() {
+  if (currentRole !== "admin") {
+    alert("Admin access only!\n\nUse:\nUsername: admin\nPassword: admin123");
+    return;
+  }
+  
+  document.getElementById("homeContent").classList.add("hidden");
+  document.getElementById("adminPanel").classList.remove("hidden");
+  updateNavButtons('admin');
+  
+  loadAdminData();
+}
+
+function showTab(tabName) {
+  // Hide all tabs
+  document.getElementById('usersTab').classList.add('hidden');
+  document.getElementById('gamesTab').classList.add('hidden');
+  document.getElementById('addGameTab').classList.add('hidden');
+  
+  // Remove active from all tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Show selected tab and activate button
+  document.getElementById(tabName + 'Tab').classList.remove('hidden');
+  event.target.classList.add('active');
+}
+
+function loadAdminData() {
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  const tableBody = document.getElementById("usersTable");
+  const gamesTable = document.getElementById("gamesTable");
+  
+  // Update stats
+  document.getElementById("totalUsers").textContent = users.length + 1; // +1 for admin
+  document.getElementById("totalGames").textContent = gamesData.length;
+  
+  // Render user table
+  let tableHTML = '';
+  
+  // Add admin user first
+  tableHTML += `
+    <tr>
+      <td><strong>${ADMIN_USER}</strong> (You)</td>
+      <td><span class="role-badge admin">Admin</span></td>
+      <td>System</td>
+      <td><button class="delete-btn" disabled>System</button></td>
+    </tr>
+  `;
+  
+  // Add regular users
+  users.forEach((user, index) => {
+    tableHTML += `
+      <tr>
+        <td>${user.user} ${currentUser === user.user ? '(You)' : ''}</td>
+        <td><span class="role-badge ${user.role}">${user.role}</span></td>
+        <td>${user.joined || 'Recently'}</td>
+        <td>
+          ${currentUser !== user.user ? 
+            `<button class="delete-btn" onclick="deleteUser(${index})">Delete</button>` : 
+            '<span style="color: #00e5ff;">Current User</span>'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  tableBody.innerHTML = tableHTML;
+  
+  // Render games table
+  let gamesHTML = '';
+  gamesData.forEach((game, index) => {
+    gamesHTML += `
+      <tr>
+        <td>${game.name}</td>
+        <td>${game.category}</td>
+        <td>⭐ ${game.rating}</td>
+        <td>${game.downloads}</td>
+        <td>
+          <button class="delete-btn" onclick="deleteGame(${index})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+  
+  gamesTable.innerHTML = gamesHTML;
+}
+
+function deleteUser(index) {
+  if (!confirm("Are you sure you want to delete this user?")) return;
+  
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+  const deletedUser = users[index].user;
+  users.splice(index, 1);
+  localStorage.setItem("users", JSON.stringify(users));
+  
+  loadAdminData();
+  alert(`User "${deletedUser}" deleted successfully`);
+}
+
+function deleteGame(index) {
+  if (!confirm("Are you sure you want to delete this game?")) return;
+  
+  const deletedGame = gamesData[index].name;
+  gamesData.splice(index, 1);
+  saveGames();
+  
+  loadAdminData();
+  renderGames();
+  alert(`Game "${deletedGame}" deleted successfully`);
+}
+
+function refreshUsers() {
+  loadAdminData();
+  alert("Admin data refreshed!");
+}
+
+// Game Management Functions
+function showAddGameForm() {
+  showAdminPage();
+  showTab('addgame');
+}
+
+function addGame() {
+  const name = document.getElementById("gameName").value;
+  const category = document.getElementById("gameCategory").value;
+  const image = document.getElementById("gameImage").value;
+  const description = document.getElementById("gameDescription").value;
+  const link = document.getElementById("gameLink").value;
+  
+  if (!name || !category || !image || !description || !link) {
+    alert("Please fill all fields!");
+    return;
+  }
+  
+  // Create new game object
+  const newGame = {
+    id: gamesData.length + 1,
+    name: name,
+    category: category,
+    icon: image || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400",
+    rating: (4 + Math.random() * 0.9).toFixed(1), // Random rating between 4.0-4.9
+    downloads: Math.floor(Math.random() * 900 + 100) + "K+",
+    description: description,
+    link: link
+  };
+  
+  gamesData.push(newGame);
+  saveGames();
+  
+  alert(`Game "${name}" added successfully!`);
+  resetGameForm();
+  renderGames();
+  loadAdminData();
+}
+
+function resetGameForm() {
+  document.getElementById("gameName").value = "";
+  document.getElementById("gameImage").value = "";
+  document.getElementById("gameDescription").value = "";
+  document.getElementById("gameLink").value = "";
+}
+
+function toggleFilter() {
+  alert("Advanced filters coming soon!");
+}
+
+function logout() {
+  if (confirm("Are you sure you want to logout?")) {
+    location.reload();
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if user is already logged in
+  const lastUser = localStorage.getItem("lastUser");
+  if (lastUser) {
+    document.getElementById("loginUser").value = lastUser;
+  }
+  
+  // Search functionality
+  const searchInput = document.getElementById("searchInput");
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    if (searchTerm.length > 2) {
+      const filtered = gamesData.filter(game => 
+        game.name.toLowerCase().includes(searchTerm) || 
+        game.category.toLowerCase().includes(searchTerm) ||
+        game.description.toLowerCase().includes(searchTerm)
+      );
+      
+      // Show search results
+      if (filtered.length > 0) {
+        console.log(`Found ${filtered.length} games matching "${searchTerm}"`);
+        // You can implement search results display here
+      }
+    }
+  });
+  
+  // Add admin info to login screen
+  document.getElementById("loginBox").querySelector(".box").innerHTML += `
+    <div class="switch" style="margin-top: 20px; padding: 10px; background: rgba(255, 64, 129, 0.1); border-radius: 10px;">
+      <strong style="color: #ff4081;">🔑 Admin Login:</strong><br>
+      <small>Username: <strong>admin</strong><br>
+      Password: <strong>admin123</strong></small>
+    </div>
+  `;
+});
+</script>
+
+</body>
+  </html>
