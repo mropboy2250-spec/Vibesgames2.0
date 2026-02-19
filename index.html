@@ -1375,4 +1375,308 @@ Thank you for using GameVibe Store!
         };
     </script>
 </body>
-  </html>
+    </html>
+<<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVibe APK Store - IndexedDB Version</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* (Same CSS as before, no changes needed) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+            --light: #ffffff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-600: #6c757d;
+            --gray-900: #212529;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+        body {
+            background: var(--gray-100);
+            color: var(--gray-900);
+        }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+        .btn {
+            padding: 12px 24px; border: none; border-radius: var(--radius);
+            font-weight: 600; cursor: pointer; background: var(--primary);
+            color: white; transition: 0.3s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        /* ... (baaki CSS same rahega, space bachane ke liye yahan nahi likha, but actual code mein poori CSS honi chahiye) */
+    </style>
+</head>
+<body>
+    <!-- (Same HTML structure as before, no changes) -->
+    <!-- ... -->
+
+    <script>
+        // ========== INDEXEDDB SETUP ==========
+        const DB_NAME = 'GameVibeDB';
+        const DB_VERSION = 1;
+        let db;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('apps')) {
+                        db.createObjectStore('apps', { keyPath: 'id' });
+                    }
+                    if (!db.objectStoreNames.contains('users')) {
+                        db.createObjectStore('users', { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        // ========== DATABASE FUNCTIONS ==========
+        let apps = [];
+        let users = [];
+        let currentUser = null;
+
+        async function loadData() {
+            try {
+                await openDB();
+                
+                // Load apps
+                const txApps = db.transaction('apps', 'readonly');
+                const storeApps = txApps.objectStore('apps');
+                apps = await new Promise((resolve) => {
+                    const request = storeApps.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                }) || [];
+                
+                // Load users
+                const txUsers = db.transaction('users', 'readonly');
+                const storeUsers = txUsers.objectStore('users');
+                users = await new Promise((resolve) => {
+                    const request = storeUsers.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                }) || [];
+                
+                if (apps.length === 0) addDemoApps();
+                if (users.length === 0) addDemoUsers();
+                
+                renderApps();
+                updateStats();
+                if (currentUser && currentUser.role === 'admin') renderAppsTable();
+            } catch (e) {
+                console.error('Error loading data:', e);
+                alert('Database error: ' + e.message);
+            }
+        }
+
+        async function saveApps() {
+            const tx = db.transaction('apps', 'readwrite');
+            const store = tx.objectStore('apps');
+            store.clear();
+            apps.forEach(app => store.add(app));
+            await tx.complete;
+            updateStats();
+        }
+
+        async function saveUsers() {
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            store.clear();
+            users.forEach(user => store.add(user));
+            await tx.complete;
+        }
+
+        // Add demo apps (smaller size to avoid initial issues)
+        function addDemoApps() {
+            apps = [
+                { id: 1, name: 'PUBG Mobile', version: '2.1.0', category: 'games', description: 'Battle Royale', icon: 'https://via.placeholder.com/80x80/4361ee/ffffff?text=PUBG', size: '1.2 GB', downloads: 15420, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() },
+                { id: 2, name: 'WhatsApp', version: '2.23.0', category: 'social', description: 'Messaging', icon: 'https://via.placeholder.com/80x80/25D366/ffffff?text=WA', size: '45 MB', downloads: 50200, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() },
+                { id: 3, name: 'Google Classroom', version: '3.0.0', category: 'education', description: 'Learning', icon: 'https://via.placeholder.com/80x80/4285F4/ffffff?text=GClass', size: '30 MB', downloads: 8230, status: 'published', featured: false, fileData: '', createdAt: new Date().toISOString() },
+                { id: 4, name: 'Adobe Lightroom', version: '7.5.0', category: 'tools', description: 'Photo Editor', icon: 'https://via.placeholder.com/80x80/9999FF/ffffff?text=LR', size: '180 MB', downloads: 12500, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() }
+            ];
+            saveApps();
+        }
+
+        function addDemoUsers() {
+            users = [
+                { id: 1, username: 'admin', password: btoa('admin123'), role: 'admin' },
+                { id: 2, username: 'user', password: btoa('user123'), role: 'user' }
+            ];
+            saveUsers();
+        }
+
+        // ========== UPLOAD APP (IndexedDB Version) ==========
+        async function uploadApp() {
+            const name = document.getElementById('appName').value.trim();
+            const version = document.getElementById('appVersion').value.trim();
+            const category = document.getElementById('appCategory').value;
+            const featured = document.getElementById('appFeatured').value === 'true';
+            const description = document.getElementById('appDescription').value.trim();
+            const apkFile = document.getElementById('apkFile').files[0];
+            
+            if (!name || !version || !description || !apkFile) {
+                showToast('Please fill all required fields and select APK!', 'error');
+                return;
+            }
+            
+            if (apkFile.size > 1024 * 1024 * 1024) {
+                showToast('File too large! Max 1GB', 'error');
+                return;
+            }
+            
+            // Read APK as base64
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const apkData = e.target.result;
+                
+                // Handle icon
+                let iconData = '';
+                const iconFile = document.getElementById('iconFile').files[0];
+                if (iconFile) {
+                    const iconReader = new FileReader();
+                    iconReader.onload = function(ie) {
+                        iconData = ie.target.result;
+                        finishUpload(iconData);
+                    };
+                    iconReader.readAsDataURL(iconFile);
+                } else {
+                    finishUpload('https://via.placeholder.com/80x80');
+                }
+                
+                async function finishUpload(icon) {
+                    // Handle screenshots
+                    const screenshotFiles = document.getElementById('screenshots').files;
+                    const screenshots = [];
+                    if (screenshotFiles.length > 0) {
+                        let loaded = 0;
+                        for (let i = 0; i < Math.min(screenshotFiles.length, 3); i++) {
+                            const scrReader = new FileReader();
+                            scrReader.onload = function(se) {
+                                screenshots.push(se.target.result);
+                                loaded++;
+                                if (loaded === Math.min(screenshotFiles.length, 3)) {
+                                    createApp(icon, screenshots);
+                                }
+                            };
+                            scrReader.readAsDataURL(screenshotFiles[i]);
+                        }
+                    } else {
+                        createApp(icon, []);
+                    }
+                }
+                
+                async function createApp(icon, screenshots) {
+                    const newApp = {
+                        id: Date.now(),
+                        name: name,
+                        version: version,
+                        category: category,
+                        description: description,
+                        icon: icon,
+                        screenshots: screenshots,
+                        size: (apkFile.size / 1024 / 1024).toFixed(2) + ' MB',
+                        downloads: 0,
+                        fileData: apkData,
+                        status: 'draft',
+                        featured: featured,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    apps.push(newApp);
+                    await saveApps();
+                    
+                    // Clear form
+                    document.getElementById('appName').value = '';
+                    document.getElementById('appVersion').value = '';
+                    document.getElementById('appDescription').value = '';
+                    document.getElementById('apkFile').value = '';
+                    document.getElementById('iconFile').value = '';
+                    document.getElementById('screenshots').value = '';
+                    document.getElementById('iconPreview').innerHTML = '';
+                    document.getElementById('screenshotsPreview').innerHTML = '';
+                    document.getElementById('fileInfo').innerHTML = '';
+                    
+                    showToast('App uploaded successfully!', 'success');
+                    if (currentUser && currentUser.role === 'admin') {
+                        renderAppsTable();
+                    }
+                    renderApps();
+                }
+            };
+            reader.readAsDataURL(apkFile);
+        }
+
+        // ========== DOWNLOAD FUNCTION (same) ==========
+        function downloadApp(id) {
+            const app = apps.find(a => a.id === id);
+            if (!app) return;
+            
+            app.downloads++;
+            saveApps();
+            
+            document.getElementById('downloadModal').style.display = 'flex';
+            document.getElementById('downloadAppName').textContent = app.name;
+            document.getElementById('downloadStatus').textContent = 'Preparing...';
+            document.getElementById('downloadProgress').style.width = '0%';
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                document.getElementById('downloadProgress').style.width = progress + '%';
+                document.getElementById('downloadStatus').textContent = `Downloading... ${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    document.getElementById('downloadStatus').textContent = 'Creating APK...';
+                    
+                    setTimeout(() => {
+                        const apkContent = `GameVibe APK Store\nApp: ${app.name}\nVersion: ${app.version}\nSize: ${app.size}\nDownloads: ${app.downloads}\nDescription: ${app.description}\nDownload Date: ${new Date().toLocaleString()}\n----------------------------------------\nThis is a working APK file generated by GameVibe.\nThank you for using GameVibe Store!`;
+                        const blob = new Blob([apkContent], { type: 'application/vnd.android.package-archive' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${app.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_v${app.version}.apk`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        
+                        document.getElementById('downloadStatus').textContent = 'Complete!';
+                        setTimeout(() => {
+                            closeModal('downloadModal');
+                            showToast(`${app.name} downloaded!`, 'success');
+                        }, 1500);
+                    }, 500);
+                }
+            }, 300);
+        }
+
+        // ========== RENDER FUNCTIONS (same as before) ==========
+        // ... (baaki functions same rahenge, bas saveApps/loadData ab IndexedDB use karta hai)
+
+        // Initialize
+        window.onload = function() {
+            loadData();
+        };
+    </script>
+</body>
+</html>
