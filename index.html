@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameVibe APK Store - Full Working</title>
+    <title>GameVibe APK Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -56,62 +56,6 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
-        }
-
-        /* Login Page */
-        .login-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
-
-        .login-card {
-            background: white;
-            width: 100%;
-            max-width: 400px;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header i {
-            font-size: 48px;
-            color: var(--primary);
-        }
-
-        .login-header h1 {
-            font-size: 32px;
-            margin: 10px 0;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--gray-200);
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
         }
 
         /* Header */
@@ -176,6 +120,56 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        /* User Menu (Login Popup) */
+        .user-menu {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 20px;
+            min-width: 280px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-menu h3 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .user-menu .form-group {
+            margin-bottom: 15px;
+        }
+
+        .user-menu input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+        }
+
+        .user-menu .btn-small {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+        }
+
+        .user-menu .logout-btn {
+            background: var(--danger);
+            margin-top: 10px;
+        }
+
+        .user-menu .demo-info {
+            font-size: 12px;
+            color: var(--gray-600);
+            margin-top: 10px;
+            padding: 8px;
+            background: var(--gray-100);
+            border-radius: 8px;
         }
 
         /* Categories */
@@ -345,6 +339,29 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
         }
 
         .image-preview {
@@ -557,39 +574,32 @@
     </style>
 </head>
 <body>
-    <!-- Login Page -->
-    <div class="login-page" id="loginPage">
-        <div class="login-card">
-            <div class="login-header">
-                <i class="fas fa-cube"></i>
-                <h1>GameVibe</h1>
-                <p>Login to continue</p>
-            </div>
-            
-            <div id="loginAlert" style="display: none; padding: 12px; background: rgba(247,37,133,0.1); border-radius: 8px; margin-bottom: 20px; color: var(--danger);"></div>
-            
+    <!-- User Menu (Login Popup) -->
+    <div class="user-menu" id="userMenu">
+        <div id="loginForm">
+            <h3>Login</h3>
+            <div id="loginAlert" style="display: none; padding: 8px; background: rgba(247,37,133,0.1); border-radius: 8px; margin-bottom: 10px; color: var(--danger);"></div>
             <div class="form-group">
-                <label>Username</label>
-                <input type="text" id="username" class="form-control" placeholder="admin">
+                <input type="text" id="username" placeholder="Username">
             </div>
-            
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" class="form-control" placeholder="admin123">
+                <input type="password" id="password" placeholder="Password">
             </div>
-            
-            <button class="btn" style="width: 100%;" onclick="handleLogin()">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </button>
-            
-            <div style="margin-top: 20px; padding: 15px; background: var(--gray-100); border-radius: 8px; font-size: 14px;">
-                <strong>Demo:</strong> admin / admin123 | user / user123
+            <button class="btn btn-small" onclick="handleLogin()">Login</button>
+            <div class="demo-info">
+                <strong>Demo:</strong> admin / admin123
             </div>
+        </div>
+        
+        <div id="userInfo" style="display: none;">
+            <h3 id="userDisplay"></h3>
+            <button class="btn btn-small logout-btn" onclick="logout()">Logout</button>
+            <button class="btn btn-small" onclick="showDashboard()" style="margin-top: 10px;">Dashboard</button>
         </div>
     </div>
 
     <!-- Main App -->
-    <div id="mainApp" style="display: none;">
+    <div id="mainApp">
         <!-- Header -->
         <header class="header">
             <div class="container header-content">
@@ -603,15 +613,9 @@
                     <input type="text" id="searchInput" placeholder="Search apps..." onkeyup="searchApps()">
                 </div>
                 
-                <div class="avatar" onclick="toggleUserMenu()" id="userAvatar">A</div>
+                <div class="avatar" onclick="toggleUserMenu()" id="userAvatar">👤</div>
             </div>
         </header>
-
-        <!-- User Menu -->
-        <div id="userMenu" style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: var(--shadow-lg); padding: 8px; min-width: 150px; display: none; z-index: 1000;">
-            <div onclick="showDashboard()" style="padding: 10px; cursor: pointer;">Dashboard</div>
-            <div onclick="logout()" style="padding: 10px; cursor: pointer;">Logout</div>
-        </div>
 
         <!-- Categories -->
         <div class="container">
@@ -805,134 +809,134 @@
     </div>
 
     <script>
+        // ========== INDEXEDDB SETUP ==========
+        const DB_NAME = 'GameVibeDB';
+        const DB_VERSION = 1;
+        let db;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('apps')) {
+                        db.createObjectStore('apps', { keyPath: 'id' });
+                    }
+                    if (!db.objectStoreNames.contains('users')) {
+                        db.createObjectStore('users', { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
         // ========== DATABASE ==========
         let apps = [];
         let users = [];
         let currentUser = null;
 
-        // Load data from localStorage
-        function loadData() {
+        async function loadData() {
             try {
-                apps = JSON.parse(localStorage.getItem('gamevibe_apps')) || [];
-                users = JSON.parse(localStorage.getItem('gamevibe_users')) || [];
+                await openDB();
+                
+                // Load apps
+                const txApps = db.transaction('apps', 'readonly');
+                const storeApps = txApps.objectStore('apps');
+                apps = await new Promise((resolve) => {
+                    const request = storeApps.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                }) || [];
+                
+                // Load users
+                const txUsers = db.transaction('users', 'readonly');
+                const storeUsers = txUsers.objectStore('users');
+                users = await new Promise((resolve) => {
+                    const request = storeUsers.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                }) || [];
                 
                 if (apps.length === 0) addDemoApps();
                 if (users.length === 0) addDemoUsers();
                 
                 renderApps();
                 updateStats();
-                if (currentUser && currentUser.role === 'admin') renderAppsTable();
             } catch (e) {
                 console.error('Error loading data:', e);
             }
         }
 
-        // Add demo apps
         function addDemoApps() {
             apps = [
-                { 
-                    id: 1, 
-                    name: 'PUBG Mobile', 
-                    version: '2.1.0', 
-                    category: 'games', 
-                    description: 'The ultimate battle royale experience on mobile.',
-                    icon: 'https://via.placeholder.com/80x80/4361ee/ffffff?text=PUBG',
-                    screenshots: [],
-                    size: '1.2 GB',
-                    downloads: 15420,
-                    status: 'published',
-                    featured: true,
-                    fileData: 'UEsDBAoAAAAA...', // dummy
-                    createdAt: new Date().toISOString()
-                },
-                { 
-                    id: 2, 
-                    name: 'WhatsApp', 
-                    version: '2.23.0', 
-                    category: 'social', 
-                    description: 'Simple, reliable messaging app.',
-                    icon: 'https://via.placeholder.com/80x80/25D366/ffffff?text=WA',
-                    screenshots: [],
-                    size: '45 MB',
-                    downloads: 50200,
-                    status: 'published',
-                    featured: true,
-                    fileData: 'UEsDBAoAAAAA...',
-                    createdAt: new Date().toISOString()
-                },
-                { 
-                    id: 3, 
-                    name: 'Google Classroom', 
-                    version: '3.0.0', 
-                    category: 'education', 
-                    description: 'Learning management system.',
-                    icon: 'https://via.placeholder.com/80x80/4285F4/ffffff?text=GClass',
-                    screenshots: [],
-                    size: '30 MB',
-                    downloads: 8230,
-                    status: 'published',
-                    featured: false,
-                    fileData: 'UEsDBAoAAAAA...',
-                    createdAt: new Date().toISOString()
-                },
-                { 
-                    id: 4, 
-                    name: 'Adobe Lightroom', 
-                    version: '7.5.0', 
-                    category: 'tools', 
-                    description: 'Professional photo editor.',
-                    icon: 'https://via.placeholder.com/80x80/9999FF/ffffff?text=LR',
-                    screenshots: [],
-                    size: '180 MB',
-                    downloads: 12500,
-                    status: 'published',
-                    featured: true,
-                    fileData: 'UEsDBAoAAAAA...',
-                    createdAt: new Date().toISOString()
-                }
+                { id: 1, name: 'PUBG Mobile', version: '2.1.0', category: 'games', description: 'Battle Royale', icon: 'https://via.placeholder.com/80x80/4361ee/ffffff?text=PUBG', size: '1.2 GB', downloads: 15420, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() },
+                { id: 2, name: 'WhatsApp', version: '2.23.0', category: 'social', description: 'Messaging', icon: 'https://via.placeholder.com/80x80/25D366/ffffff?text=WA', size: '45 MB', downloads: 50200, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() },
+                { id: 3, name: 'Google Classroom', version: '3.0.0', category: 'education', description: 'Learning', icon: 'https://via.placeholder.com/80x80/4285F4/ffffff?text=GClass', size: '30 MB', downloads: 8230, status: 'published', featured: false, fileData: '', createdAt: new Date().toISOString() },
+                { id: 4, name: 'Adobe Lightroom', version: '7.5.0', category: 'tools', description: 'Photo Editor', icon: 'https://via.placeholder.com/80x80/9999FF/ffffff?text=LR', size: '180 MB', downloads: 12500, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() }
             ];
             saveApps();
         }
 
-        // Add demo users
         function addDemoUsers() {
             users = [
-                { id: 1, username: 'admin', password: btoa('admin123'), role: 'admin' },
-                { id: 2, username: 'user', password: btoa('user123'), role: 'user' }
+                { id: 1, username: 'admin', password: btoa('admin123'), role: 'admin' }
             ];
             saveUsers();
         }
 
-        function saveApps() {
-            localStorage.setItem('gamevibe_apps', JSON.stringify(apps));
+        async function saveApps() {
+            const tx = db.transaction('apps', 'readwrite');
+            const store = tx.objectStore('apps');
+            store.clear();
+            apps.forEach(app => store.add(app));
+            await tx.complete;
             updateStats();
+            if (currentUser && currentUser.role === 'admin') renderAppsTable();
         }
 
-        function saveUsers() {
-            localStorage.setItem('gamevibe_users', JSON.stringify(users));
+        async function saveUsers() {
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            store.clear();
+            users.forEach(user => store.add(user));
+            await tx.complete;
         }
 
         // ========== AUTHENTICATION ==========
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            
+            if (currentUser) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('userDisplay').textContent = `Welcome, ${currentUser.username}!`;
+            } else {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        }
+
         function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
             if (username === 'admin' && password === 'admin123') {
                 currentUser = { username: 'admin', role: 'admin' };
-                loginSuccess();
-                return;
-            }
-            
-            if (username === 'user' && password === 'user123') {
-                currentUser = { username: 'user', role: 'user' };
-                loginSuccess();
+                document.getElementById('userAvatar').textContent = 'A';
+                showToast('Welcome Admin!', 'success');
+                toggleUserMenu();
                 return;
             }
             
             const user = users.find(u => u.username === username && atob(u.password) === password);
             if (user) {
                 currentUser = user;
-                loginSuccess();
+                document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+                showToast('Login successful!', 'success');
+                toggleUserMenu();
             } else {
                 document.getElementById('loginAlert').style.display = 'block';
                 document.getElementById('loginAlert').textContent = 'Invalid credentials!';
@@ -940,22 +944,13 @@
             }
         }
 
-        function loginSuccess() {
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
-            showHome();
-        }
-
         function logout() {
             currentUser = null;
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('loginPage').style.display = 'flex';
-        }
-
-        function toggleUserMenu() {
-            const menu = document.getElementById('userMenu');
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            document.getElementById('userAvatar').textContent = '👤';
+            document.getElementById('dashboardPage').style.display = 'none';
+            document.getElementById('homePage').style.display = 'block';
+            showToast('Logged out!', 'info');
+            toggleUserMenu();
         }
 
         // ========== RENDER FUNCTIONS ==========
@@ -1053,17 +1048,14 @@
             const app = apps.find(a => a.id === id);
             if (!app) return;
             
-            // Increment download counter
             app.downloads++;
             saveApps();
             
-            // Show download modal
             document.getElementById('downloadModal').style.display = 'flex';
             document.getElementById('downloadAppName').textContent = app.name;
-            document.getElementById('downloadStatus').textContent = 'Preparing download...';
+            document.getElementById('downloadStatus').textContent = 'Preparing...';
             document.getElementById('downloadProgress').style.width = '0%';
             
-            // Simulate download progress
             let progress = 0;
             const interval = setInterval(() => {
                 progress += 10;
@@ -1072,21 +1064,10 @@
                 
                 if (progress >= 100) {
                     clearInterval(interval);
-                    document.getElementById('downloadStatus').textContent = 'Creating APK file...';
+                    document.getElementById('downloadStatus').textContent = 'Creating APK...';
                     
-                    // Create actual downloadable file
                     setTimeout(() => {
-                        const apkContent = `GameVibe APK Store
-App: ${app.name}
-Version: ${app.version}
-Size: ${app.size}
-Downloads: ${app.downloads}
-Description: ${app.description}
-Download Date: ${new Date().toLocaleString()}
-----------------------------------------
-This is a working APK file generated by GameVibe.
-Thank you for using GameVibe Store!
-`;
+                        const apkContent = `GameVibe APK Store\nApp: ${app.name}\nVersion: ${app.version}\nSize: ${app.size}\nDownloads: ${app.downloads}\nDescription: ${app.description}\nDownload Date: ${new Date().toLocaleString()}\n----------------------------------------\nThis is a working APK file generated by GameVibe.\nThank you for using GameVibe Store!`;
                         const blob = new Blob([apkContent], { type: 'application/vnd.android.package-archive' });
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
@@ -1097,20 +1078,23 @@ Thank you for using GameVibe Store!
                         document.body.removeChild(a);
                         window.URL.revokeObjectURL(url);
                         
-                        document.getElementById('downloadStatus').textContent = 'Download complete!';
-                        
+                        document.getElementById('downloadStatus').textContent = 'Complete!';
                         setTimeout(() => {
                             closeModal('downloadModal');
-                            showToast(`${app.name} downloaded successfully!`, 'success');
+                            showToast(`${app.name} downloaded!`, 'success');
                         }, 1500);
-                        
                     }, 500);
                 }
             }, 300);
         }
 
         // ========== UPLOAD APP ==========
-        function uploadApp() {
+        async function uploadApp() {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Admin only!', 'error');
+                return;
+            }
+            
             const name = document.getElementById('appName').value.trim();
             const version = document.getElementById('appVersion').value.trim();
             const category = document.getElementById('appCategory').value;
@@ -1123,18 +1107,15 @@ Thank you for using GameVibe Store!
                 return;
             }
             
-            // Check file size (max 1GB)
             if (apkFile.size > 1024 * 1024 * 1024) {
                 showToast('File too large! Max 1GB', 'error');
                 return;
             }
             
-            // Read APK as base64
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const apkData = e.target.result;
                 
-                // Handle icon
                 let iconData = '';
                 const iconFile = document.getElementById('iconFile').files[0];
                 if (iconFile) {
@@ -1148,8 +1129,7 @@ Thank you for using GameVibe Store!
                     finishUpload('https://via.placeholder.com/80x80');
                 }
                 
-                function finishUpload(icon) {
-                    // Handle screenshots
+                async function finishUpload(icon) {
                     const screenshotFiles = document.getElementById('screenshots').files;
                     const screenshots = [];
                     if (screenshotFiles.length > 0) {
@@ -1170,7 +1150,7 @@ Thank you for using GameVibe Store!
                     }
                 }
                 
-                function createApp(icon, screenshots) {
+                async function createApp(icon, screenshots) {
                     const newApp = {
                         id: Date.now(),
                         name: name,
@@ -1188,9 +1168,8 @@ Thank you for using GameVibe Store!
                     };
                     
                     apps.push(newApp);
-                    saveApps();
+                    await saveApps();
                     
-                    // Clear form
                     document.getElementById('appName').value = '';
                     document.getElementById('appVersion').value = '';
                     document.getElementById('appDescription').value = '';
@@ -1202,37 +1181,43 @@ Thank you for using GameVibe Store!
                     document.getElementById('fileInfo').innerHTML = '';
                     
                     showToast('App uploaded successfully!', 'success');
-                    if (currentUser && currentUser.role === 'admin') {
-                        renderAppsTable();
-                    }
                     renderApps();
+                    renderAppsTable();
                 }
             };
             reader.readAsDataURL(apkFile);
         }
 
         // ========== ADMIN ACTIONS ==========
-        function publishApp(id) {
+        async function publishApp(id) {
             const app = apps.find(a => a.id === id);
             if (app) {
                 app.status = 'published';
-                saveApps();
+                await saveApps();
                 renderAppsTable();
                 renderApps();
                 showToast(`${app.name} published!`, 'success');
             }
         }
 
-        function deleteApp(id) {
+        async function deleteApp(id) {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Admin only!', 'error');
+                return;
+            }
             if (!confirm('Delete this app?')) return;
             apps = apps.filter(a => a.id !== id);
-            saveApps();
+            await saveApps();
             renderAppsTable();
             renderApps();
             showToast('App deleted!', 'success');
         }
 
         function editApp(id) {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Admin only!', 'error');
+                return;
+            }
             const app = apps.find(a => a.id === id);
             if (!app) return;
             
@@ -1242,8 +1227,6 @@ Thank you for using GameVibe Store!
             document.getElementById('appFeatured').value = app.featured ? 'true' : 'false';
             document.getElementById('appDescription').value = app.description;
             
-            // Optionally delete old and upload new, or implement update
-            // For simplicity, we'll delete old and let user upload new
             deleteApp(id);
         }
 
@@ -1354,7 +1337,6 @@ Thank you for using GameVibe Store!
         function filterApps(category, element) {
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
-            // Filter logic can be added here if needed
         }
 
         function searchApps() {
@@ -1366,317 +1348,14 @@ Thank you for using GameVibe Store!
             const filtered = apps.filter(a => a.name.toLowerCase().includes(term) || a.category.includes(term));
             document.getElementById('featuredGrid').innerHTML = '';
             renderGrid('featuredGrid', filtered.slice(0,4));
-            // For simplicity, just update featured grid
         }
 
         // Initialize
         window.onload = function() {
             loadData();
+            // Hide user menu by default
+            document.getElementById('userMenu').style.display = 'none';
         };
     </script>
 </body>
     </html>
-<<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameVibe APK Store - IndexedDB Version</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* (Same CSS as before, no changes needed) */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
-        :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #f72585;
-            --success: #4cc9f0;
-            --warning: #f8961e;
-            --danger: #f72585;
-            --light: #ffffff;
-            --gray-100: #f8f9fa;
-            --gray-200: #e9ecef;
-            --gray-300: #dee2e6;
-            --gray-600: #6c757d;
-            --gray-900: #212529;
-            --shadow: 0 4px 6px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-            --radius: 12px;
-        }
-        body {
-            background: var(--gray-100);
-            color: var(--gray-900);
-        }
-        .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
-        .btn {
-            padding: 12px 24px; border: none; border-radius: var(--radius);
-            font-weight: 600; cursor: pointer; background: var(--primary);
-            color: white; transition: 0.3s;
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-        /* ... (baaki CSS same rahega, space bachane ke liye yahan nahi likha, but actual code mein poori CSS honi chahiye) */
-    </style>
-</head>
-<body>
-    <!-- (Same HTML structure as before, no changes) -->
-    <!-- ... -->
-
-    <script>
-        // ========== INDEXEDDB SETUP ==========
-        const DB_NAME = 'GameVibeDB';
-        const DB_VERSION = 1;
-        let db;
-
-        function openDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
-                request.onupgradeneeded = (e) => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains('apps')) {
-                        db.createObjectStore('apps', { keyPath: 'id' });
-                    }
-                    if (!db.objectStoreNames.contains('users')) {
-                        db.createObjectStore('users', { keyPath: 'id' });
-                    }
-                };
-            });
-        }
-
-        // ========== DATABASE FUNCTIONS ==========
-        let apps = [];
-        let users = [];
-        let currentUser = null;
-
-        async function loadData() {
-            try {
-                await openDB();
-                
-                // Load apps
-                const txApps = db.transaction('apps', 'readonly');
-                const storeApps = txApps.objectStore('apps');
-                apps = await new Promise((resolve) => {
-                    const request = storeApps.getAll();
-                    request.onsuccess = () => resolve(request.result);
-                }) || [];
-                
-                // Load users
-                const txUsers = db.transaction('users', 'readonly');
-                const storeUsers = txUsers.objectStore('users');
-                users = await new Promise((resolve) => {
-                    const request = storeUsers.getAll();
-                    request.onsuccess = () => resolve(request.result);
-                }) || [];
-                
-                if (apps.length === 0) addDemoApps();
-                if (users.length === 0) addDemoUsers();
-                
-                renderApps();
-                updateStats();
-                if (currentUser && currentUser.role === 'admin') renderAppsTable();
-            } catch (e) {
-                console.error('Error loading data:', e);
-                alert('Database error: ' + e.message);
-            }
-        }
-
-        async function saveApps() {
-            const tx = db.transaction('apps', 'readwrite');
-            const store = tx.objectStore('apps');
-            store.clear();
-            apps.forEach(app => store.add(app));
-            await tx.complete;
-            updateStats();
-        }
-
-        async function saveUsers() {
-            const tx = db.transaction('users', 'readwrite');
-            const store = tx.objectStore('users');
-            store.clear();
-            users.forEach(user => store.add(user));
-            await tx.complete;
-        }
-
-        // Add demo apps (smaller size to avoid initial issues)
-        function addDemoApps() {
-            apps = [
-                { id: 1, name: 'PUBG Mobile', version: '2.1.0', category: 'games', description: 'Battle Royale', icon: 'https://via.placeholder.com/80x80/4361ee/ffffff?text=PUBG', size: '1.2 GB', downloads: 15420, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() },
-                { id: 2, name: 'WhatsApp', version: '2.23.0', category: 'social', description: 'Messaging', icon: 'https://via.placeholder.com/80x80/25D366/ffffff?text=WA', size: '45 MB', downloads: 50200, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() },
-                { id: 3, name: 'Google Classroom', version: '3.0.0', category: 'education', description: 'Learning', icon: 'https://via.placeholder.com/80x80/4285F4/ffffff?text=GClass', size: '30 MB', downloads: 8230, status: 'published', featured: false, fileData: '', createdAt: new Date().toISOString() },
-                { id: 4, name: 'Adobe Lightroom', version: '7.5.0', category: 'tools', description: 'Photo Editor', icon: 'https://via.placeholder.com/80x80/9999FF/ffffff?text=LR', size: '180 MB', downloads: 12500, status: 'published', featured: true, fileData: '', createdAt: new Date().toISOString() }
-            ];
-            saveApps();
-        }
-
-        function addDemoUsers() {
-            users = [
-                { id: 1, username: 'admin', password: btoa('admin123'), role: 'admin' },
-                { id: 2, username: 'user', password: btoa('user123'), role: 'user' }
-            ];
-            saveUsers();
-        }
-
-        // ========== UPLOAD APP (IndexedDB Version) ==========
-        async function uploadApp() {
-            const name = document.getElementById('appName').value.trim();
-            const version = document.getElementById('appVersion').value.trim();
-            const category = document.getElementById('appCategory').value;
-            const featured = document.getElementById('appFeatured').value === 'true';
-            const description = document.getElementById('appDescription').value.trim();
-            const apkFile = document.getElementById('apkFile').files[0];
-            
-            if (!name || !version || !description || !apkFile) {
-                showToast('Please fill all required fields and select APK!', 'error');
-                return;
-            }
-            
-            if (apkFile.size > 1024 * 1024 * 1024) {
-                showToast('File too large! Max 1GB', 'error');
-                return;
-            }
-            
-            // Read APK as base64
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const apkData = e.target.result;
-                
-                // Handle icon
-                let iconData = '';
-                const iconFile = document.getElementById('iconFile').files[0];
-                if (iconFile) {
-                    const iconReader = new FileReader();
-                    iconReader.onload = function(ie) {
-                        iconData = ie.target.result;
-                        finishUpload(iconData);
-                    };
-                    iconReader.readAsDataURL(iconFile);
-                } else {
-                    finishUpload('https://via.placeholder.com/80x80');
-                }
-                
-                async function finishUpload(icon) {
-                    // Handle screenshots
-                    const screenshotFiles = document.getElementById('screenshots').files;
-                    const screenshots = [];
-                    if (screenshotFiles.length > 0) {
-                        let loaded = 0;
-                        for (let i = 0; i < Math.min(screenshotFiles.length, 3); i++) {
-                            const scrReader = new FileReader();
-                            scrReader.onload = function(se) {
-                                screenshots.push(se.target.result);
-                                loaded++;
-                                if (loaded === Math.min(screenshotFiles.length, 3)) {
-                                    createApp(icon, screenshots);
-                                }
-                            };
-                            scrReader.readAsDataURL(screenshotFiles[i]);
-                        }
-                    } else {
-                        createApp(icon, []);
-                    }
-                }
-                
-                async function createApp(icon, screenshots) {
-                    const newApp = {
-                        id: Date.now(),
-                        name: name,
-                        version: version,
-                        category: category,
-                        description: description,
-                        icon: icon,
-                        screenshots: screenshots,
-                        size: (apkFile.size / 1024 / 1024).toFixed(2) + ' MB',
-                        downloads: 0,
-                        fileData: apkData,
-                        status: 'draft',
-                        featured: featured,
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    apps.push(newApp);
-                    await saveApps();
-                    
-                    // Clear form
-                    document.getElementById('appName').value = '';
-                    document.getElementById('appVersion').value = '';
-                    document.getElementById('appDescription').value = '';
-                    document.getElementById('apkFile').value = '';
-                    document.getElementById('iconFile').value = '';
-                    document.getElementById('screenshots').value = '';
-                    document.getElementById('iconPreview').innerHTML = '';
-                    document.getElementById('screenshotsPreview').innerHTML = '';
-                    document.getElementById('fileInfo').innerHTML = '';
-                    
-                    showToast('App uploaded successfully!', 'success');
-                    if (currentUser && currentUser.role === 'admin') {
-                        renderAppsTable();
-                    }
-                    renderApps();
-                }
-            };
-            reader.readAsDataURL(apkFile);
-        }
-
-        // ========== DOWNLOAD FUNCTION (same) ==========
-        function downloadApp(id) {
-            const app = apps.find(a => a.id === id);
-            if (!app) return;
-            
-            app.downloads++;
-            saveApps();
-            
-            document.getElementById('downloadModal').style.display = 'flex';
-            document.getElementById('downloadAppName').textContent = app.name;
-            document.getElementById('downloadStatus').textContent = 'Preparing...';
-            document.getElementById('downloadProgress').style.width = '0%';
-            
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                document.getElementById('downloadProgress').style.width = progress + '%';
-                document.getElementById('downloadStatus').textContent = `Downloading... ${progress}%`;
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    document.getElementById('downloadStatus').textContent = 'Creating APK...';
-                    
-                    setTimeout(() => {
-                        const apkContent = `GameVibe APK Store\nApp: ${app.name}\nVersion: ${app.version}\nSize: ${app.size}\nDownloads: ${app.downloads}\nDescription: ${app.description}\nDownload Date: ${new Date().toLocaleString()}\n----------------------------------------\nThis is a working APK file generated by GameVibe.\nThank you for using GameVibe Store!`;
-                        const blob = new Blob([apkContent], { type: 'application/vnd.android.package-archive' });
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${app.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_v${app.version}.apk`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        window.URL.revokeObjectURL(url);
-                        
-                        document.getElementById('downloadStatus').textContent = 'Complete!';
-                        setTimeout(() => {
-                            closeModal('downloadModal');
-                            showToast(`${app.name} downloaded!`, 'success');
-                        }, 1500);
-                    }, 500);
-                }
-            }, 300);
-        }
-
-        // ========== RENDER FUNCTIONS (same as before) ==========
-        // ... (baaki functions same rahenge, bas saveApps/loadData ab IndexedDB use karta hai)
-
-        // Initialize
-        window.onload = function() {
-            loadData();
-        };
-    </script>
-</body>
-</html>
