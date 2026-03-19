@@ -1,1 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibesGames 2.0 – Simple App Store</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome (optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <h1>🎮 VibesGames 2.0</h1>
+            <div id="userInfo">
+                <span id="displayName"></span>
+                <button id="loginBtn" class="btn">Login</button>
+                <button id="logoutBtn" class="btn" style="display:none;">Logout</button>
+            </div>
+        </header>
 
+        <!-- Main content -->
+        <main id="mainContent">
+            <!-- Dynamically filled -->
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Login</h2>
+            <p>Click below to login with Google (simulated)</p>
+            <button id="googleLoginBtn" class="btn google-btn">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
+            <hr>
+            <p><small>Demo: koi bhi naam dalo – automatic login</small></p>
+            <input type="text" id="anyName" placeholder="Apna naam likho">
+            <button id="anyLoginBtn" class="btn">Login as Guest</button>
+        </div>
+    </div>
+
+    <div id="appModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+  </html>
