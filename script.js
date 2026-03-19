@@ -30,7 +30,7 @@ function loadData() {
         });
     }
     if (users.length === 0) {
-        users.push({ user: '😎AHMAD😎', pass: 'AHMAD', role: 'owner' });
+        users.push({ user: 'a', pass: '2222', role: 'owner' });
         users.push({ user: 'guest', pass: 'guest', role: 'user' });
     }
     nextId = Math.max(...apps.map(a => a.id), 0) + 1;
