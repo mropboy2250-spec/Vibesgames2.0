@@ -1,323 +1,405 @@
-// ==================== DATABASE (IndexedDB – Unlimited Storage) ====================
-let db;
-let currentUser = null; // { name, email, picture, isAdmin }
-
-const DB_NAME = 'VibesGamesDB';
-const DB_VERSION = 1;
-
-function openDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => {
-            db = request.result;
-            resolve(db);
-        };
-        request.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('apps')) {
-                const store = db.createObjectStore('apps', { keyPath: 'id', autoIncrement: true });
-                store.createIndex('title', 'title');
-                store.createIndex('developer', 'developer');
-                store.createIndex('rating', 'rating');
-            }
-            if (!db.objectStoreNames.contains('users')) {
-                db.createObjectStore('users', { keyPath: 'email' });
-            }
-            if (!db.objectStoreNames.contains('ratings')) {
-                db.createObjectStore('ratings', { keyPath: 'id', autoIncrement: true });
-            }
-        };
-    });
-}
-
-// ==================== LOAD / SAVE APPS ====================
+// ========================= DATA INIT =========================
 let apps = [];
+let users = [];
+let reviews = [];
+let downloads = [];
+let currentUser = null;
+let nextId = 100;
 
-async function loadApps() {
-    const tx = db.transaction('apps', 'readonly');
-    const store = tx.objectStore('apps');
-    apps = await new Promise((resolve) => {
-        const request = store.getAll();
-        request.onsuccess = () => resolve(request.result);
-    }) || [];
-    renderHome();
-}
+// Load from localStorage
+function loadData() {
+    apps = JSON.parse(localStorage.getItem('vg_apps')) || [];
+    users = JSON.parse(localStorage.getItem('vg_users')) || [];
+    reviews = JSON.parse(localStorage.getItem('vg_reviews')) || [];
+    downloads = JSON.parse(localStorage.getItem('vg_downloads')) || [];
 
-async function saveApp(app) {
-    const tx = db.transaction('apps', 'readwrite');
-    const store = tx.objectStore('apps');
-    await store.add(app);
-    await loadApps();
-}
-
-async function updateApp(app) {
-    const tx = db.transaction('apps', 'readwrite');
-    const store = tx.objectStore('apps');
-    await store.put(app);
-    await loadApps();
-}
-
-async function deleteApp(id) {
-    const tx = db.transaction('apps', 'readwrite');
-    const store = tx.objectStore('apps');
-    await store.delete(id);
-    await loadApps();
-}
-
-// ==================== SAMPLE APPS ====================
-async function addSampleApps() {
-    const sample = [
-        { title: 'PUBG Mobile', icon: 'https://via.placeholder.com/80?text=PUBG', size: '1.2 GB', downloads: 15000, rating: 4.5, developer: 'admin' },
-        { title: 'WhatsApp', icon: 'https://via.placeholder.com/80?text=WA', size: '45 MB', downloads: 50200, rating: 4.8, developer: 'admin' },
-        { title: 'Netflix', icon: 'https://via.placeholder.com/80?text=Netflix', size: '25 MB', downloads: 30000, rating: 4.7, developer: 'admin' },
-    ];
-    for (let s of sample) {
-        await saveApp(s);
+    if (apps.length === 0) {
+        // Sample apps
+        apps.push({
+            id: 1,
+            name: 'Sample Game',
+            category: 'Game',
+            desc: 'A fun sample game',
+            icon: null,
+            file: 'sample.apk',
+            size: '15 MB',
+            rating: 4.5,
+            version: '1.0',
+            featured: true,
+            uploadDate: new Date().toISOString()
+        });
     }
+    if (users.length === 0) {
+        users.push({ user: 'ahmad', pass: 'ahmad123', role: 'owner' });
+        users.push({ user: 'guest', pass: 'guest', role: 'user' });
+    }
+    nextId = Math.max(...apps.map(a => a.id), 0) + 1;
 }
 
-// ==================== RENDER HOME ====================
-function renderHome() {
-    const main = document.getElementById('mainContent');
-    const topApps = [...apps].sort((a,b) => b.downloads - a.downloads).slice(0, 10);
-    const topRated = [...apps].sort((a,b) => b.rating - a.rating).slice(0, 10);
-
-    main.innerHTML = `
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search apps..." onkeyup="searchApps()">
-        </div>
-        <div class="tabs">
-            <span class="tab active" onclick="showTab('home')">Home</span>
-            <span class="tab" onclick="showTab('top')">Top Downloads</span>
-            <span class="tab" onclick="showTab('rated')">Top Rated</span>
-            ${currentUser?.isAdmin ? `<span class="tab" onclick="showDashboard()">Dashboard</span>` : ''}
-        </div>
-        <div id="homeContent">
-            <h3>🔥 Top Downloads</h3>
-            <div class="app-grid" id="topGrid">
-                ${topApps.map(app => renderAppCard(app)).join('')}
-            </div>
-            <h3>⭐ Top Rated</h3>
-            <div class="app-grid" id="ratedGrid">
-                ${topRated.map(app => renderAppCard(app)).join('')}
-            </div>
-        </div>
-        <div id="searchResults" style="display:none;"></div>
-    `;
+function saveData() {
+    localStorage.setItem('vg_apps', JSON.stringify(apps));
+    localStorage.setItem('vg_users', JSON.stringify(users));
+    localStorage.setItem('vg_reviews', JSON.stringify(reviews));
+    localStorage.setItem('vg_downloads', JSON.stringify(downloads));
 }
 
-function renderAppCard(app) {
-    return `
+// ========================= UI RENDER =========================
+function renderApps(filter = 'all', search = '', sort = 'a-z') {
+    let filtered = [...apps];
+    if (search) {
+        filtered = filtered.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
+    }
+    if (filter === 'top') {
+        filtered = filtered.filter(a => a.rating >= 4);
+    } else if (filter === 'latest') {
+        filtered.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+    } else if (filter === 'featured') {
+        filtered = filtered.filter(a => a.featured);
+    }
+
+    // Sorting
+    if (sort === 'a-z') filtered.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sort === 'z-a') filtered.sort((a, b) => b.name.localeCompare(a.name));
+    else if (sort === 'top-rated') filtered.sort((a, b) => b.rating - a.rating);
+    else if (sort === 'newest') filtered.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+
+    const grid = document.getElementById('appsGrid');
+    grid.innerHTML = filtered.map(app => `
         <div class="app-card" onclick="openAppModal(${app.id})">
-            <img src="${app.icon || 'https://via.placeholder.com/80'}" class="app-icon">
-            <div class="app-title">${app.title}</div>
-            <div class="app-meta">
-                <span>⭐ ${app.rating || 0}</span>
-                <span>📥 ${app.downloads || 0}</span>
-            </div>
+            <div class="app-icon">${app.icon ? `<img src="${app.icon}">` : '📱'}</div>
+            <div class="app-name">${app.name}</div>
+            <div class="app-category">${app.category}</div>
+            <div class="app-rating">${'★'.repeat(Math.floor(app.rating))}${app.rating % 1 ? '½' : ''}</div>
+            <div class="app-version">v${app.version}</div>
         </div>
-    `;
-}
+    `).join('');
 
-function showTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
-    if (tab === 'home') {
-        document.getElementById('homeContent').style.display = 'block';
-        document.getElementById('searchResults').style.display = 'none';
-    } else if (tab === 'top') {
-        const top = [...apps].sort((a,b) => b.downloads - a.downloads);
-        document.getElementById('homeContent').style.display = 'none';
-        document.getElementById('searchResults').style.display = 'block';
-        document.getElementById('searchResults').innerHTML = `<h3>Top Downloads</h3><div class="app-grid">${top.map(renderAppCard).join('')}</div>`;
-    } else if (tab === 'rated') {
-        const rated = [...apps].sort((a,b) => b.rating - a.rating);
-        document.getElementById('homeContent').style.display = 'none';
-        document.getElementById('searchResults').style.display = 'block';
-        document.getElementById('searchResults').innerHTML = `<h3>Top Rated</h3><div class="app-grid">${rated.map(renderAppCard).join('')}</div>`;
+    // Update featured banner
+    const featured = apps.find(a => a.featured);
+    if (featured) {
+        document.getElementById('featuredTitle').innerText = `⚡ Featured: ${featured.name}`;
+        document.getElementById('featuredDesc').innerText = featured.desc;
+        document.getElementById('featuredDownloadBtn').onclick = () => downloadApp(featured.id);
     }
 }
 
-function searchApps() {
-    const term = document.getElementById('searchInput').value.toLowerCase();
-    if (term.length < 2) return;
-    const results = apps.filter(a => a.title.toLowerCase().includes(term));
-    document.getElementById('homeContent').style.display = 'none';
-    document.getElementById('searchResults').style.display = 'block';
-    document.getElementById('searchResults').innerHTML = `<h3>Search Results</h3><div class="app-grid">${results.map(renderAppCard).join('')}</div>`;
-}
-
-// ==================== APP MODAL ====================
-function openAppModal(id) {
+// ========================= APP MODAL =========================
+window.openAppModal = (id) => {
     const app = apps.find(a => a.id === id);
     if (!app) return;
-    const html = `
-        <h2>${app.title}</h2>
-        <img src="${app.icon || 'https://via.placeholder.com/200'}" style="width:100%; border-radius:1rem;">
-        <p><strong>Size:</strong> ${app.size}</p>
-        <p><strong>Downloads:</strong> ${app.downloads}</p>
-        <p><strong>Rating:</strong> ⭐ ${app.rating || 0}</p>
-        <p><strong>Developer:</strong> ${app.developer}</p>
-        <button class="btn" onclick="downloadApp(${app.id})">Download APK</button>
-        <hr>
-        <h4>Rate this app</h4>
-        <select id="ratingSelect">
-            <option value="1">1 ⭐</option><option value="2">2 ⭐</option><option value="3">3 ⭐</option>
-            <option value="4">4 ⭐</option><option value="5">5 ⭐</option>
-        </select>
-        <button class="btn" onclick="rateApp(${app.id})">Submit Rating</button>
-        ${currentUser?.isAdmin ? `<button class="btn" style="background:#f72585;" onclick="deleteAppModal(${app.id})">Delete App</button>` : ''}
-    `;
-    document.getElementById('modalContent').innerHTML = html;
-    document.getElementById('appModal').style.display = 'flex';
-}
-
-function downloadApp(id) {
-    const app = apps.find(a => a.id === id);
-    if (app) {
-        app.downloads = (app.downloads || 0) + 1;
-        updateApp(app);
-        alert(`Downloading ${app.title}... (simulated)`);
-    }
-    closeModal();
-}
-
-async function rateApp(id) {
-    const rating = parseInt(document.getElementById('ratingSelect').value);
-    const app = apps.find(a => a.id === id);
-    if (app) {
-        // Simple average (just for demo)
-        app.rating = ((app.rating || 0) + rating) / 2;
-        await updateApp(app);
-        alert('Thanks for rating!');
-        closeModal();
-    }
-}
-
-// ==================== ADMIN DASHBOARD (Ahmad ka area) ====================
-function showDashboard() {
-    if (!currentUser?.isAdmin) {
-        alert('Sirf Ahmad ke liye!');
-        return;
-    }
-    const myApps = apps.filter(a => a.developer === 'ahmad');
-    const html = `
-        <h2>Admin Dashboard (Ahmad)</h2>
-        <div class="upload-area" onclick="document.getElementById('apkUpload').click()">
-            <i class="fas fa-cloud-upload-alt" style="font-size:2rem;"></i>
-            <p>Click to upload APK (up to 1GB+)</p>
-            <input type="file" id="apkUpload" accept=".apk" style="display:none;" onchange="uploadApp()">
-        </div>
-        <div class="app-list">
-            <h3>Your Uploaded Apps</h3>
-            ${myApps.map(app => `
-                <div class="app-row">
-                    <img src="${app.icon || 'https://via.placeholder.com/40'}">
-                    <div><strong>${app.title}</strong> (${app.downloads} downloads)</div>
-                    <button onclick="deleteApp(${app.id})">🗑️</button>
+    const appReviews = reviews.filter(r => r.appId === id);
+    const avgRating = appReviews.length ? (appReviews.reduce((s, r) => s + r.rating, 0) / appReviews.length).toFixed(1) : app.rating;
+    document.getElementById('appDetailContent').innerHTML = `
+        <div class="app-detail">
+            <div class="detail-icon">${app.icon ? `<img src="${app.icon}">` : '📱'}</div>
+            <h2>${app.name}</h2>
+            <p class="detail-category">${app.category} | v${app.version}</p>
+            <p class="detail-desc">${app.desc}</p>
+            <p><strong>Size:</strong> ${app.size || '~15 MB'}</p>
+            <p><strong>Downloads:</strong> ${downloads.filter(d => d.appId === id).length}</p>
+            <div class="rating-stars" data-app="${id}">
+                ${[1,2,3,4,5].map(s => `<span class="star" data-rating="${s}">★</span>`).join('')}
+            </div>
+            <button class="btn" onclick="downloadApp(${id})">Download</button>
+            <hr>
+            <div class="reviews">
+                <h4>Reviews</h4>
+                <textarea id="reviewText" placeholder="Write a review..."></textarea>
+                <button class="btn-small" onclick="addReview(${id})">Submit Review</button>
+                <div id="reviewsList">
+                    ${appReviews.map(r => `<div class="review-item"><strong>${r.user}:</strong> ${'★'.repeat(r.rating)} - ${r.text}</div>`).join('')}
                 </div>
-            `).join('')}
+            </div>
         </div>
     `;
-    document.getElementById('mainContent').innerHTML = html;
-}
 
-async function uploadApp() {
-    const file = document.getElementById('apkUpload').files[0];
-    if (!file) return;
-    if (!file.name.endsWith('.apk')) {
-        alert('Sirf APK file allowed hai!');
-        return;
+    document.querySelectorAll('.star').forEach(star => {
+        star.addEventListener('click', (e) => {
+            const rating = parseInt(e.target.dataset.rating);
+            if (!currentUser) return alert('Please login to rate');
+            addReview(id, rating, document.getElementById('reviewText')?.value || '');
+        });
+    });
+    document.getElementById('appModal').style.display = 'block';
+};
+
+window.addReview = (appId, rating, text) => {
+    if (!currentUser) return alert('Login first');
+    const reviewText = document.getElementById('reviewText')?.value || text;
+    if (!rating) rating = prompt('Rating (1-5):', 5);
+    if (rating < 1 || rating > 5) return alert('Rating must be 1-5');
+    reviews.push({
+        id: Date.now(),
+        appId,
+        user: currentUser.user,
+        rating: parseInt(rating),
+        text: reviewText
+    });
+    saveData();
+    openAppModal(appId);
+};
+
+// ========================= DOWNLOAD =========================
+window.downloadApp = (id) => {
+    const app = apps.find(a => a.id === id);
+    if (!app) return;
+    showLoader();
+    setTimeout(() => {
+        downloads.push({ appId: id, user: currentUser?.user || 'guest', date: new Date().toISOString() });
+        saveData();
+        const content = `VibesGames APK\nApp: ${app.name}\nVersion: ${app.version}\nEnjoy!`;
+        const blob = new Blob([content], { type: 'application/vnd.android.package-archive' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${app.name}.apk`;
+        a.click();
+        URL.revokeObjectURL(url);
+        hideLoader();
+        showToast('Downloaded successfully!');
+    }, 1500);
+};
+
+// ========================= UPLOAD =========================
+document.getElementById('uploadForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!currentUser || currentUser.role !== 'owner') return alert('Only owner can upload');
+    const name = document.getElementById('appName').value;
+    const category = document.getElementById('appCategory').value;
+    const desc = document.getElementById('appDesc').value;
+    const featured = document.getElementById('featuredCheck').checked;
+    const file = document.getElementById('appFile').files[0];
+    const iconFile = document.getElementById('appIcon').files[0];
+
+    let iconData = null;
+    if (iconFile) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            iconData = e.target.result;
+            finishUpload();
+        };
+        reader.readAsDataURL(iconFile);
+    } else {
+        finishUpload();
     }
-    const title = prompt('App ka naam?', file.name.replace('.apk',''));
-    if (!title) return;
-    const newApp = {
-        title: title,
-        icon: 'https://via.placeholder.com/80?text=' + title.charAt(0),
-        size: (file.size / (1024*1024)).toFixed(2) + ' MB',
-        downloads: 0,
-        rating: 0,
-        developer: 'ahmad',
-    };
-    await saveApp(newApp);
-    alert('App upload ho gayi!');
-    showDashboard();
-}
 
-async function deleteAppModal(id) {
-    if (confirm('Pakka delete?')) {
-        await deleteApp(id);
-        closeModal();
+    function finishUpload() {
+        const newApp = {
+            id: nextId++,
+            name,
+            category,
+            desc,
+            icon: iconData,
+            file: file ? file.name : 'dummy.apk',
+            size: file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : '~1 MB',
+            rating: 4.0,
+            version: '1.0',
+            featured,
+            uploadDate: new Date().toISOString()
+        };
+        apps.push(newApp);
+        saveData();
+        renderApps();
+        document.getElementById('uploadForm').reset();
+        document.getElementById('iconPreview').innerHTML = '';
+        showToast('App uploaded!');
     }
-}
+});
 
-// ==================== LOGIN SYSTEM ====================
-document.getElementById('loginBtn').addEventListener('click', () => {
-    document.getElementById('loginModal').style.display = 'flex';
+// ========================= LOGIN =========================
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const user = document.getElementById('loginUser').value;
+    const pass = document.getElementById('loginPass').value;
+    const found = users.find(u => u.user === user && u.pass === pass);
+    if (found) {
+        currentUser = found;
+        localStorage.setItem('vg_current', JSON.stringify(found));
+        updateUI();
+        document.getElementById('loginModal').style.display = 'none';
+        showToast(`Welcome ${found.user}!`);
+    } else {
+        alert('Invalid credentials');
+    }
 });
 
 document.getElementById('googleLoginBtn').addEventListener('click', () => {
-    // Simulated Google login
-    currentUser = {
-        name: 'Ahmad (Google)',
-        email: 'ahmad@gmail.com',
-        picture: '',
-        isAdmin: true  // Sirf Ahmad admin hai
-    };
+    const names = ['Alex', 'Jordan', 'Taylor', 'Casey', 'Riley'];
+    const random = names[Math.floor(Math.random() * names.length)];
+    currentUser = { user: random + '_google', role: 'user' };
+    localStorage.setItem('vg_current', JSON.stringify(currentUser));
     updateUI();
-    closeModal();
-});
-
-document.getElementById('anyLoginBtn').addEventListener('click', () => {
-    const name = document.getElementById('anyName').value || 'Guest';
-    currentUser = {
-        name: name,
-        email: name + '@demo.com',
-        picture: '',
-        isAdmin: (name.toLowerCase() === 'ahmad') // Sirf Ahmad admin
-    };
-    updateUI();
-    closeModal();
-});
-
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    currentUser = null;
-    updateUI();
-    renderHome();
+    document.getElementById('loginModal').style.display = 'none';
+    showToast(`Signed in as ${random} (Google)`);
 });
 
 function updateUI() {
     if (currentUser) {
-        document.getElementById('displayName').innerText = `👤 ${currentUser.name}`;
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'inline-block';
+        document.getElementById('userNameDisplay').innerText = currentUser.user;
+        if (currentUser.role === 'owner') {
+            document.getElementById('uploadSection').classList.remove('hidden');
+        } else {
+            document.getElementById('uploadSection').classList.add('hidden');
+        }
+        renderProfile();
     } else {
-        document.getElementById('displayName').innerText = '';
-        document.getElementById('loginBtn').style.display = 'inline-block';
-        document.getElementById('logoutBtn').style.display = 'none';
+        document.getElementById('userNameDisplay').innerText = 'Guest';
+        document.getElementById('uploadSection').classList.add('hidden');
     }
-    renderHome(); // refresh home
 }
 
-// ==================== CLOSE MODALS ====================
-document.querySelectorAll('.close').forEach(el => {
-    el.addEventListener('click', () => {
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+// ========================= PROFILE =========================
+function renderProfile() {
+    document.getElementById('profileUsername').innerText = currentUser?.user || 'Guest';
+    document.getElementById('profileRole').innerText = currentUser?.role || 'user';
+
+    if (currentUser?.role === 'owner') {
+        const ownerApps = apps.filter(a => true); // all apps
+        document.getElementById('ownerAppsGrid').innerHTML = ownerApps.map(app => `
+            <div class="app-card">
+                <div class="app-icon">${app.icon ? `<img src="${app.icon}">` : '📱'}</div>
+                <div class="app-name">${app.name}</div>
+                <div class="app-actions">
+                    <button onclick="deleteApp(${app.id})" class="btn-small">🗑️</button>
+                    <button onclick="toggleFeature(${app.id})" class="btn-small">⭐</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    const userDownloads = downloads.filter(d => d.user === currentUser?.user);
+    document.getElementById('downloadedApps').innerHTML = userDownloads.map(d => {
+        const app = apps.find(a => a.id === d.appId);
+        return `<li>${app?.name || 'Unknown'} - ${new Date(d.date).toLocaleDateString()}</li>`;
+    }).join('');
+}
+
+window.deleteApp = (id) => {
+    apps = apps.filter(a => a.id !== id);
+    saveData();
+    renderApps();
+    renderProfile();
+    showToast('App deleted');
+};
+
+window.toggleFeature = (id) => {
+    const app = apps.find(a => a.id === id);
+    if (app) {
+        app.featured = !app.featured;
+        saveData();
+        renderApps();
+        showToast(app.featured ? 'Featured' : 'Unfeatured');
+    }
+};
+
+// ========================= UTILS =========================
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMessage').innerText = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+function showLoader() {
+    document.getElementById('loader').classList.remove('hidden');
+}
+
+function hideLoader() {
+    document.getElementById('loader').classList.add('hidden');
+}
+
+// ========================= EVENT LISTENERS =========================
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    const saved = localStorage.getItem('vg_current');
+    if (saved) currentUser = JSON.parse(saved);
+    updateUI();
+    renderApps();
+
+    // Search & filters
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        renderApps(
+            document.querySelector('.filter-btn.active')?.dataset.filter || 'all',
+            e.target.value,
+            document.getElementById('sortSelect').value
+        );
+    });
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+        renderApps(
+            document.querySelector('.filter-btn.active')?.dataset.filter || 'all',
+            document.getElementById('searchInput').value,
+            e.target.value
+        );
+    });
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            renderApps(
+                e.target.dataset.filter,
+                document.getElementById('searchInput').value,
+                document.getElementById('sortSelect').value
+            );
+        });
+    });
+
+    // Modals
+    document.getElementById('userBadge').addEventListener('click', () => {
+        if (currentUser) {
+            document.getElementById('profileSection').classList.remove('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+            renderProfile();
+        } else {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+    });
+    document.querySelectorAll('.close').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.target.closest('.modal').style.display = 'none';
+            document.getElementById('profileSection').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        });
+    });
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        currentUser = null;
+        localStorage.removeItem('vg_current');
+        updateUI();
+        document.getElementById('profileSection').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        showToast('Logged out');
+    });
+
+    // Theme toggle
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const icon = document.querySelector('#themeToggle i');
+        icon.classList.toggle('fa-moon');
+        icon.classList.toggle('fa-sun');
+    });
+
+    // Footer modals (simulated)
+    document.getElementById('aboutLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('VibesGames 2.0 – Simple app store for everyone.');
+    });
+    document.getElementById('contactLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Email: support@vibesgames.com');
+    });
+    document.getElementById('privacyLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('We respect your privacy. No data collected.');
+    });
+
+    // Icon preview
+    document.getElementById('appIcon').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('iconPreview').innerHTML = `<img src="${e.target.result}">`;
+            };
+            reader.readAsDataURL(file);
+        }
     });
 });
-
-function closeModal() {
-    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-}
-
-// ==================== INIT ====================
-window.onload = async () => {
-    await openDB();
-    await loadApps();
-    if (apps.length === 0) {
-        await addSampleApps();
-        await loadApps();
-    }
-    renderHome();
-};
