@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VibesGames 2.0</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
 
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- LOADER -->
+<div id="global-loader" class="hidden">
+  <div class="loader-ring"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="brand-icon">\ud83c\udfae</span>
+    <span class="brand-name">VibesGames <em>2.0</em></span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('store')">Store</button>
+    <button class="nav-btn" onclick="showPage('profile')">Profile</button>
+    <button class="nav-btn" id="admin-nav-btn" onclick="showPage('admin')" style="display:none">Admin</button>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">\ud83c\udf19</button>
+    <div id="nav-user" class="nav-user hidden">
+      <span id="nav-username"></span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    <button id="nav-login-btn" class="btn-primary" onclick="openModal('login-modal')">Login</button>
+  </div>
+</nav>
+
+<!-- ==================== STORE PAGE ==================== -->
+<div id="page-store" class="page active">
+
+  <!-- FEATURED BANNER -->
+  <section class="featured-banner" id="featured-banner">
+    <div class="featured-content">
+      <div class="featured-badge">\u2b50 Featured App</div>
+      <div id="featured-icon" class="featured-icon">\ud83c\udfae</div>
+      <h1 id="featured-title">Welcome to VibesGames</h1>
+      <p id="featured-desc">Discover the best apps & games. Download, rate, and review.</p>
+      <button id="featured-btn" class="btn-featured" onclick="openFeaturedApp()">View App</button>
+    </div>
+    <div class="featured-bg-glow"></div>
+  </section>
+
+  <!-- SEARCH & FILTERS -->
+  <section class="search-section">
+    <div class="search-bar-wrap">
+      <span class="search-icon">\ud83d\udd0d</span>
+      <input type="text" id="search-input" placeholder="Search apps..." oninput="filterApps()" />
+    
